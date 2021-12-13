@@ -40,4 +40,49 @@ function createCartItemElement({ sku, name, salePrice }) {
   return li;
 }
 
-window.onload = () => { };
+window.onload = () => {
+  productsList();
+};
+
+/* FUNÇÕES CRIADAS 13_12_2021 */
+let BASE_URL = 'https://api.mercadolibre.com';
+// Retorna os produtos
+const getProducts = async (query) => {
+  const req = await fetch(`${BASE_URL}/sites/MLB/search?q=${query}`);
+  const json = await req.json();
+  return json.results;
+}
+
+// Percorre o array dos produtos retornados na função getProducts
+productsList = async () => {
+  let products = await getProducts('Computador');
+  let section = document.querySelector('section .items');
+  products.forEach(element => {
+    let product = { 'sku': element.id, 'name': element.title, 
+      'image': element.thumbnail}
+    let item = createProductItemElement(product);
+    section.appendChild(item);
+    addEventsButton(item);
+  });
+}
+
+// Adicionar eventos ao botão
+addEventsButton = (item) => {
+  item.querySelector('section .item__add').addEventListener('click', async () => {
+    itemID = item.firstChild.innerText;
+    result = await addCartItemList(itemID);
+    let cart = document.querySelector('section .cart__items');
+    console.log(result);
+    let product = { 'sku': result.id, 'name': result.title, 
+      'salePrice': result.price}
+    let cartItem = createCartItemElement(product);
+    cart.appendChild(cartItem);
+  });
+}
+
+// Retornar os dados do produto selecionado e adicionar no carrinho
+addCartItemList = async (itemID) => {
+  const req = await fetch(`${BASE_URL}/items/${itemID}`);
+  const json = await req.json();
+  return json;
+}
