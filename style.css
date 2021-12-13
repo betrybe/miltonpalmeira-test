@@ -55,3 +55,7 @@
   font-size: 16pt;
   text-align: center;
 }
+
+li {
+  list-style-type: disc;
+}
